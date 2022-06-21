@@ -1,9 +1,10 @@
 package kafka
 
 import (
-	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
-	"os"
 	"log"
+	"os"
+
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 func NewKafkaProducer() *ckafka.Producer {
@@ -22,7 +23,7 @@ func NewKafkaProducer() *ckafka.Producer {
 func Publish(msg string, topic string, producer *ckafka.Producer) error {
 	message := &ckafka.Message{
 		TopicPartition: ckafka.TopicPartition{Topic: &topic, Partition: ckafka.PartitionAny},
-		Value: []byte(msg),
+		Value:          []byte(msg),
 	}
 
 	err := producer.Produce(message, nil)

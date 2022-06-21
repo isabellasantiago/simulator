@@ -1,40 +1,42 @@
 package kafka
 
 import (
-	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
-	"os"
-	"log"
 	"fmt"
+	"log"
+	"os"
+
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 )
+
 type KafkaConsumer struct {
 	MsgChan chan *ckafka.Message
 }
 
-func NewKafkaConsumer(msgChan chan *ckafka.Message)*KafkaConsumer{
+func NewKafkaConsumer(msgChan chan *ckafka.Message) *KafkaConsumer {
 	return &KafkaConsumer{
 		MsgChan: msgChan,
 	}
 }
 
-func(k *KafkaConsumer) Consume() {
-	configMap :=  &ckafka.ConfigMap{
+func (k *KafkaConsumer) Consume() {
+	configMap := &ckafka.ConfigMap{
 		"bootstrap.servers": os.Getenv("KafkaBootstrapServer"),
-		"group.id": os.Getenv("KafkaConsumerGroupId"),
+		"group.id":          os.Getenv("KafkaConsumerGroupId"),
 	}
 
 	c, err := ckafka.NewConsumer(configMap)
 	if err != nil {
-		log.Fatalf("error consuming kafka message:" + err.Error())
+		log.Fatalf("error consuming kafka message" + err.Error())
 	}
 
 	topics := []string{os.Getenv("KafkaReadTopic")}
 	c.SubscribeTopics(topics, nil)
-	
-	fmt.Println("Kafka consumer has been started")
 
-	for{
+	fmt.Println("Kafka consumer started")
+
+	for {
 		msg, err := c.ReadMessage(-1)
-		if err == nil{
+		if err == nil {
 			k.MsgChan <- msg
 		}
 	}
